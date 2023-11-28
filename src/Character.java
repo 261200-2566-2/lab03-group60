@@ -2,8 +2,10 @@ import java.util.Scanner;
 public class Character {
     private String Name;
     private int Level;
-    private int HP;
-    private int Mana;
+    private double HP;
+    private double maxHP;
+    private double Mana;
+    private double maxMana;
     private double Damage;
     private double Defense;
     private double Speed;
@@ -15,17 +17,19 @@ public class Character {
         String name = s.nextLine();
         this.Name = name;
         this.Level = 0;
-        this.HP = 100;
-        this.Mana = 50;
-        this.Damage = 0;
-        this.Defense = 0;
-        this.Speed = 1;
-        this.downSpeed = 0;
+        this.HP = 100.0;
+        this.maxHP = 100.0;
+        this.Mana = 50.0;
+        this.maxMana = 50.0;
+        this.Damage = 0.0;
+        this.Defense = 0.0;
+        this.Speed = 1.0;
+        this.downSpeed = 0.0;
     }
 
     public void getItem() {
 
-
+        showStatus();
         Scanner s = new Scanner(System.in);
         System.out.print("Choose a sword(sw) or shield(sh) or all(all)  ? : ");
         String sw = s.nextLine();
@@ -288,22 +292,48 @@ public class Character {
     }
 
     private void updateState () {
-        HP = 100 + 10 * Level;
-        Mana = 50 + 2 * Level;
+
+        HP = HP + 0.5*Level;
+        Mana = Mana + 0.3*Level;
+
+        maxHP = HP + 10 * Level;
+        maxMana = Mana + 2 * Level;
 
         Damage = Damage * (1 + 0.1 * Level);
         Defense = Defense * (1 + 0.05 * Level);
 
         Speed = Speed*(0.1+0.3*Level);
 
+
+
     }
+
+    public void Attack(Character p){
+
+        double damageTaken = this.Damage - p.Defense;
+
+        if (damageTaken > 0) {
+            p.HP -= damageTaken;
+        } else if (damageTaken < 0){
+            this.HP -= Math.abs(this.Damage - p.Defense);
+        }
+    }
+    public void Defend(Character p){
+        double damageTaken = this.Defense - p.Damage ;
+        if (damageTaken > 0) {
+            p.HP -= damageTaken;
+        } else if (damageTaken < 0){
+            this.HP -= Math.abs(p.Damage - this.Defense);
+        }
+    }
+
     public void showStatus() {
         System.out.printf("╔═══════════════════════════════════════════════╗%n");
         System.out.printf(" %15s %s %s%n", "Hi", this.Name, "㋡!");
         System.out.printf("    ◤%2s %2s %2s◢%n","This is",this.Name,"status before choose");
         System.out.printf("-------------------------------------------------%n");
 
-        System.out.printf("|%-3s%1d | %-3s%1d |%-3s%1d      |%n", "LEVEL \uD83D\uDD30: ",Level, "HP \uD83D\uDC9A: ",HP,"MANA \uD83D\uDC99: ",Mana);
+        System.out.printf("|%-3s%1d | %-3s%s/%s |%-3s%s/%s |%n", "LEVEL \uD83D\uDD30: ",Level, "HP \uD83D\uDC9A: ",String.format("%.1f", HP),String.format("%.1f", maxHP),"MANA \uD83D\uDC99: ",String.format("%.1f", Mana),String.format("%.1f", maxMana));
         System.out.printf("|%-1s%s |%-1s%s |%-1s%s/%s |%n", "ATK \uD83D\uDDE1\uFE0F:", String.format("%.2f", Damage), "DEF \uD83D\uDEE1\uFE0F:", String.format("%.2f", Defense), "SPD \uD83C\uDFCD\uFE0F:", String.format("%.2f",Speed), String.format("%.2f", Speed));
 
         System.out.printf("-------------------------------------------------%n");
@@ -314,9 +344,8 @@ public class Character {
         System.out.printf("    ◤%2s %2s %2s◢%n","This is",this.Name,"status after choose");
         System.out.printf("-------------------------------------------------%n");
 
-        System.out.printf("|%-3s%1d |%-3s%1d   |%-3s%1d      |%n", "LEVEL \uD83D\uDD30: ",Level, "HP \uD83D\uDC9A: ",HP,"MANA \uD83D\uDC99: ",Mana);
-        System.out.printf("|%-1s%s |%-1s%s |%-1s%s/%s |%n", "ATK\uD83D\uDDE1\uFE0F:", String.format("%.2f", Damage), "DEF\uD83D\uDEE1\uFE0F:", String.format("%.2f", Defense), "SPD\uD83C\uDFCD\uFE0F:", String.format("%.2f", downSpeed),String.format("%.2f",Speed));
-
+        System.out.printf("|%-3s%1d | %-3s%s/%s |%-3s%s/%s |%n", "LEVEL \uD83D\uDD30: ",Level, "HP \uD83D\uDC9A: ",String.format("%.1f", HP),String.format("%.1f", maxHP),"MANA \uD83D\uDC99: ",String.format("%.1f", Mana),String.format("%.1f", maxMana));
+        System.out.printf("|%-1s%s |%-1s%s |%-1s%s/%s |%n", "ATK \uD83D\uDDE1\uFE0F:", String.format("%.2f", Damage), "DEF \uD83D\uDEE1\uFE0F:", String.format("%.2f", Defense), "SPD \uD83C\uDFCD\uFE0F:", String.format("%.2f",Speed), String.format("%.2f", Speed));
         System.out.printf("-------------------------------------------------%n");
         System.out.printf("╚═══════════════════════════════════════════════╝%n");
     }
@@ -325,12 +354,24 @@ public class Character {
         System.out.printf("◤%2s %2s %2s◢%n","This is",this.Name,"status after reset");
         System.out.printf("------------------------------------------%n");
 
-        System.out.printf("|%-3s%1d | %-3s%1d |%-3s%1d |%n", "LEVEL \uD83D\uDD30: ",Level, "HP \uD83D\uDC9A: ",HP,"MANA \uD83D\uDC99: ",Mana);
-        System.out.printf("|%-1s%s |%-1s%s |%-1s%s/%s |%n", "ATK \uD83D\uDDE1\uFE0F:", String.format("%.2f", Damage), "DEF \uD83D\uDEE1\uFE0F:", String.format("%.2f", Defense), "SPD \uD83C\uDFCD\uFE0F:", String.format("%.2f", Speed),String.format("%.2f", Speed));
+        System.out.printf("|%-3s%1d | %-3s%s/%s |%-3s%s/%s |%n", "LEVEL \uD83D\uDD30: ",Level, "HP \uD83D\uDC9A: ",String.format("%.1f", HP),String.format("%.1f", maxHP),"MANA \uD83D\uDC99: ",String.format("%.1f", Mana),String.format("%.1f", maxMana));
+        System.out.printf("|%-1s%s |%-1s%s |%-1s%s/%s |%n", "ATK \uD83D\uDDE1\uFE0F:", String.format("%.2f", Damage), "DEF \uD83D\uDEE1\uFE0F:", String.format("%.2f", Defense), "SPD \uD83C\uDFCD\uFE0F:", String.format("%.2f",Speed), String.format("%.2f", Speed));
 
         System.out.printf("------------------------------------------%n");
         System.out.printf("╚════════════════════════════════════════╝%n");
     }
+    public void showStatusAfterAttack () {
+        System.out.printf("╔════════════════════════════════════════╗%n");
+        System.out.printf("◤%2s %2s %2s◢%n","This is",this.Name,"status after Attack");
+        System.out.printf("------------------------------------------%n");
+
+        System.out.printf("|%-3s%1d | %-3s%s/%s |%-3s%s/%s |%n", "LEVEL \uD83D\uDD30: ",Level, "HP \uD83D\uDC9A: ",String.format("%.1f", HP),String.format("%.1f", maxHP),"MANA \uD83D\uDC99: ",String.format("%.1f", Mana),String.format("%.1f", maxMana));
+        System.out.printf("|%-1s%s |%-1s%s |%-1s%s/%s |%n", "ATK \uD83D\uDDE1\uFE0F:", String.format("%.2f", Damage), "DEF \uD83D\uDEE1\uFE0F:", String.format("%.2f", Defense), "SPD \uD83C\uDFCD\uFE0F:", String.format("%.2f",Speed), String.format("%.2f", Speed));
+
+        System.out.printf("------------------------------------------%n");
+        System.out.printf("╚════════════════════════════════════════╝%n");
+    }
+
     public void showError () {
         System.out.printf("╔════════════════════════════════════════╗%n");
         System.out.printf("------------------------------------------%n");
@@ -351,4 +392,15 @@ public class Character {
         showStatus3();
     }
 }
+
+
+
+
+
+
+
+
+
+
+
 
